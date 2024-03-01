@@ -9,8 +9,10 @@ public class PlayerMovementController : MonoBehaviour
     //Declare reference variables
     PlayerMovement playerInput;
     CharacterController characterController;
+    Grappling grappling;
     Animator animator;
     Camera mainCamera;
+    Rigidbody rb;
 
     int isWalkingHash;
     int isRunningHash;
@@ -20,13 +22,15 @@ public class PlayerMovementController : MonoBehaviour
     //Variables to store player input values
     Vector2 currentMovementInput;
     Vector3 currentMovement;
+    RaycastHit slopeHit;
+    LayerMask whatIsGround;
     [SerializeField]float speed;
     [SerializeField]float acceleration;
     [SerializeField] float runMultiplier = 3.0f;
     float currentSpeed;
     bool isMovementPressed;
     bool isRunPressed;
-    float direction;
+    float direction, playerHeight;
 
     float rotationFactorPerFrame = 20f;
 
@@ -42,13 +46,19 @@ public class PlayerMovementController : MonoBehaviour
     bool isJumping = false;
     bool isJumpAnimating = false;
 
+    public bool freeze, activeGrapple, grounded;
+    public float dragFactor = 0.1f; // The amount of drag to apply
+
     void Awake()
     {
         //initially set reference variables
         playerInput = new PlayerMovement();
+        rb = GetComponent<Rigidbody>();
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         mainCamera = Camera.main;
+
+        grappling = GetComponent<Grappling>();
 
         isWalkingHash = Animator.StringToHash("isWalking");
         isRunningHash = Animator.StringToHash("isRunning");
@@ -67,6 +77,8 @@ public class PlayerMovementController : MonoBehaviour
         setupJumpVariables();
 
     }
+
+    #region PlayerHandling
 
     void handleRotation()
     {
@@ -207,6 +219,91 @@ public class PlayerMovementController : MonoBehaviour
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
 
         characterController.Move(new Vector3(currentMovement.x * currentSpeed, currentMovement.y, currentMovement.z * currentSpeed) * Time.deltaTime);
+
+        if (activeGrapple) return;
+
+        // Set player to freeze for grappling hook
+        if (freeze)
+        {
+            characterController.Move(Vector3.zero);
+        }
+    }
+    #endregion
+
+    private Vector3 GetSlopeMoveDirection()
+    {
+        return Vector3.ProjectOnPlane(currentMovement, slopeHit.normal).normalized;
+    }
+
+    private bool enableMovementOnNextTouch;
+    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    {
+        // This could be wrong
+        activeGrapple = true;
+
+        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+
+        Invoke(nameof(SetVelocity), 0.1f);
+
+        // If you have been grappling more than 3 sec
+        Invoke(nameof(RestRestrictions), 3f);
+    }
+
+    // Set velocity over time to simulate velocity for charactercontroller
+    private IEnumerator ApplyVelocityOverTime(Vector3 velocity, float duration)
+    {
+        float timeElapsed = 0;
+
+        while (timeElapsed < duration)
+        {
+            // Moves the character controller by velocity * Time.deltaTime each frame
+            characterController.Move(velocity * Time.deltaTime);
+
+            // Simulate gravity by adding Physics.gravity to the velocity each frame
+            velocity += (Physics.gravity * - 1) * Time.deltaTime;
+
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // When the duration is over, ensure the character stops moving by setting velocity to zero
+        enableMovementOnNextTouch = true;
+    }
+
+    private Vector3 velocityToSet;
+    void SetVelocity()
+    {
+        enableMovementOnNextTouch = true;
+        StartCoroutine(ApplyVelocityOverTime(velocityToSet, 5f));
+    }
+
+    void RestRestrictions()
+    {
+        activeGrapple = false;
+    }
+
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endPoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
+            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+        return velocityXZ + velocityY;
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (enableMovementOnNextTouch)
+        {
+            enableMovementOnNextTouch = false;
+            RestRestrictions();
+
+            GetComponent<Grappling>().StopGrapple();
+        }
     }
 
     // Update is called once per frame
@@ -218,6 +315,17 @@ public class PlayerMovementController : MonoBehaviour
         handleGravity();
         handleJump();
 
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+
+        //if (grounded && !activeGrapple)
+        //{
+        //    // handle drag
+        //    currentMovement.x *= (1 - dragFactor * Time.deltaTime);
+        //    currentMovement.z *= (1 - dragFactor * Time.deltaTime);
+        //}
+        //else
+        //    // set drag to 0
+        //    dragFactor = 0;
     }
 
     void OnEnable()
