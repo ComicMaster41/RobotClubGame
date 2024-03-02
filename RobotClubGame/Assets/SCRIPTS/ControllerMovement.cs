@@ -47,8 +47,12 @@ public class PlayerMovementController : MonoBehaviour
     bool isJumpAnimating = false;
     public float groundDrag;
 
-    public bool freeze, activeGrapple, grounded;
+    public bool freeze;
+    public bool activeGrapple;
+    public bool grounded;
     public float dragFactor = 0.1f; // The amount of drag to apply
+
+
 
     void Awake()
     {
@@ -239,7 +243,6 @@ public class PlayerMovementController : MonoBehaviour
     private bool enableMovementOnNextTouch;
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
-        // This could be wrong
         activeGrapple = true;
 
         velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
@@ -247,7 +250,7 @@ public class PlayerMovementController : MonoBehaviour
         Invoke(nameof(SetVelocity), 0.1f);
 
         // If you have been grappling more than 3 sec
-        Invoke(nameof(RestRestrictions), 3f);
+        Invoke(nameof(ResetRestrictions), 3f);
     }
 
     private Vector3 velocityToSet;
@@ -257,11 +260,23 @@ public class PlayerMovementController : MonoBehaviour
         rb.velocity = velocityToSet;
     }
 
-    void RestRestrictions()
+    void ResetRestrictions()
     {
         activeGrapple = false;
     }
 
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (enableMovementOnNextTouch)
+        {
+            enableMovementOnNextTouch = false;
+            ResetRestrictions();
+
+            GetComponent<Grappling>().StopGrapple();
+        }
+    }
+
+    // kinematic calculation for grapple
     public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
     {
         float gravity = Physics.gravity.y;
@@ -273,17 +288,6 @@ public class PlayerMovementController : MonoBehaviour
             + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
 
         return velocityXZ + velocityY;
-    }
-
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (enableMovementOnNextTouch)
-        {
-            enableMovementOnNextTouch = false;
-            RestRestrictions();
-
-            GetComponent<Grappling>().StopGrapple();
-        }
     }
 
     // Update is called once per frame
@@ -302,6 +306,12 @@ public class PlayerMovementController : MonoBehaviour
             rb.drag = groundDrag;
         else
             rb.drag = 0;
+
+        // freeze function
+        if(freeze)
+        {
+            rb.velocity = Vector3.zero;
+        }
     }
 
     void OnEnable()

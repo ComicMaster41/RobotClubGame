@@ -30,13 +30,13 @@ public class Grappling : MonoBehaviour
     // Grab a reference to a rigidbody on the player
     public Rigidbody rb;
 
-    void Start()
+    private void Start()
     {
         pm = GetComponent<PlayerMovementController>();
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(grappleKey)) StartGrapple();
 
@@ -44,13 +44,13 @@ public class Grappling : MonoBehaviour
             grapplingCdTimer -= Time.deltaTime;
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
         if (grappling)
             lr.SetPosition(0, gunTip.position);
     }
 
-    void StartGrapple()
+    private void StartGrapple()
     {
         // Enable kinematic on rigidbody
         rb.isKinematic = true;
@@ -58,9 +58,10 @@ public class Grappling : MonoBehaviour
         if (grapplingCdTimer > 0) return;
 
         grappling = true;
-
+        
         pm.freeze = true;
 
+        // Raycast creation
         RaycastHit hit;
         if(Physics.Raycast(cam.position, cam.forward, out hit, maxGrapplineDistance, whatIsGrappeable))
         {
@@ -68,22 +69,22 @@ public class Grappling : MonoBehaviour
 
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
-
         else
         {
             grapplePoint = cam.position + cam.forward * maxGrapplineDistance;
             Invoke(nameof(StopGrapple), grappleDelayTime);
         }
 
+        // Raycast line renderer
         lr.enabled = true;
         lr.SetPosition(1, grapplePoint);
     }
 
-    void ExecuteGrapple()
+    private void ExecuteGrapple()
     {
         pm.freeze = false;
 
-        Vector3 lowestPoint = new(transform.position.x, transform.position.y - 1f, transform.position.z);
+        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
 
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
