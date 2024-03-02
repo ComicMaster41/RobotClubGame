@@ -27,9 +27,13 @@ public class Grappling : MonoBehaviour
 
     private bool grappling;
 
+    // Grab a reference to a rigidbody on the player
+    public Rigidbody rb;
+
     void Start()
     {
         pm = GetComponent<PlayerMovementController>();
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -48,6 +52,9 @@ public class Grappling : MonoBehaviour
 
     void StartGrapple()
     {
+        // Enable kinematic on rigidbody
+        rb.isKinematic = true;
+
         if (grapplingCdTimer > 0) return;
 
         grappling = true;
@@ -97,5 +104,8 @@ public class Grappling : MonoBehaviour
         grapplingCdTimer = grapplingCd;
 
         lr.enabled = false;
+
+        // Disable kinematic on rigidbody
+        rb.isKinematic = false;
     }
 }

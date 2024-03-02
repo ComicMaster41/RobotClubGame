@@ -1968,6 +1968,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1765116360898588, guid: bdd91695cfcf4b643963af1fce587ef5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1860826775}
+    - targetCorrespondingSourceObject: {fileID: 1765116360898588, guid: bdd91695cfcf4b643963af1fce587ef5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1860826776}
   m_SourcePrefab: {fileID: 100100000, guid: bdd91695cfcf4b643963af1fce587ef5, type: 3}
 --- !u!1 &1860826768 stripped
 GameObject:
@@ -1991,6 +1994,7 @@ MonoBehaviour:
   runMultiplier: 4
   maxJumpHeight: 4
   maxJumpTime: 1
+  groundDrag: 0
   freeze: 0
   activeGrapple: 0
   grounded: 0
@@ -2042,13 +2046,42 @@ MonoBehaviour:
   gunTip: {fileID: 1074489622}
   whatIsGrappeable:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   lr: {fileID: 2062700359}
   maxGrapplineDistance: 100
   grappleDelayTime: 0.25
   overshootYAxis: 5
   grapplingCd: 0.1
+  grapplingCdTimer: 0
   grappleKey: 324
+  rb: {fileID: 0}
+--- !u!54 &1860826776
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860826768}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1991068297
 GameObject:
   m_ObjectHideFlags: 0

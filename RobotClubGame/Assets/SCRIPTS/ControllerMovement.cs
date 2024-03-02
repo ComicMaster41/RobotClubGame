@@ -45,6 +45,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] float maxJumpTime = 0.5f;
     bool isJumping = false;
     bool isJumpAnimating = false;
+    public float groundDrag;
 
     public bool freeze, activeGrapple, grounded;
     public float dragFactor = 0.1f; // The amount of drag to apply
@@ -249,32 +250,11 @@ public class PlayerMovementController : MonoBehaviour
         Invoke(nameof(RestRestrictions), 3f);
     }
 
-    // Set velocity over time to simulate velocity for charactercontroller
-    private IEnumerator ApplyVelocityOverTime(Vector3 velocity, float duration)
-    {
-        float timeElapsed = 0;
-
-        while (timeElapsed < duration)
-        {
-            // Moves the character controller by velocity * Time.deltaTime each frame
-            characterController.Move(velocity * Time.deltaTime);
-
-            // Simulate gravity by adding Physics.gravity to the velocity each frame
-            velocity += (Physics.gravity * - 1) * Time.deltaTime;
-
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        // When the duration is over, ensure the character stops moving by setting velocity to zero
-        enableMovementOnNextTouch = true;
-    }
-
     private Vector3 velocityToSet;
     void SetVelocity()
     {
         enableMovementOnNextTouch = true;
-        StartCoroutine(ApplyVelocityOverTime(velocityToSet, 5f));
+        rb.velocity = velocityToSet;
     }
 
     void RestRestrictions()
@@ -317,15 +297,11 @@ public class PlayerMovementController : MonoBehaviour
 
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
-        //if (grounded && !activeGrapple)
-        //{
-        //    // handle drag
-        //    currentMovement.x *= (1 - dragFactor * Time.deltaTime);
-        //    currentMovement.z *= (1 - dragFactor * Time.deltaTime);
-        //}
-        //else
-        //    // set drag to 0
-        //    dragFactor = 0;
+        // handle drag
+        if (grounded && !activeGrapple)
+            rb.drag = groundDrag;
+        else
+            rb.drag = 0;
     }
 
     void OnEnable()
