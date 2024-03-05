@@ -47,6 +47,7 @@ public class PlayerMovementController : MonoBehaviour
     bool isJumpAnimating = false;
     public float groundDrag;
 
+    // Grappling Variables
     public bool freeze;
     public bool activeGrapple;
     public bool grounded;
@@ -308,10 +309,10 @@ public class PlayerMovementController : MonoBehaviour
             rb.drag = 0;
 
         // freeze function
-        if(freeze)
+        /*if(freeze)
         {
             rb.velocity = Vector3.zero;
-        }
+        }*/
     }
 
     void OnEnable()
