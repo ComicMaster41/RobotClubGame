@@ -12,7 +12,6 @@ public class PlayerMovementController : MonoBehaviour
     Grappling grappling;
     Animator animator;
     Camera mainCamera;
-    Rigidbody rb;
 
     int isWalkingHash;
     int isRunningHash;
@@ -52,6 +51,10 @@ public class PlayerMovementController : MonoBehaviour
     public bool activeGrapple;
     public bool grounded;
     public float dragFactor = 0.1f; // The amount of drag to apply
+    public float decelerationRate;
+
+    private bool enableMovementOnNextTouch;
+    private Vector3 velocityToSet;
 
 
 
@@ -59,7 +62,6 @@ public class PlayerMovementController : MonoBehaviour
     {
         //initially set reference variables
         playerInput = new PlayerMovement();
-        rb = GetComponent<Rigidbody>();
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         mainCamera = Camera.main;
@@ -84,6 +86,39 @@ public class PlayerMovementController : MonoBehaviour
 
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+        handleRotation();
+        handleAnimation();
+        handleMovement();
+        handleGravity();
+        handleJump();
+
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+
+        // A check to allow player to grapple
+        AllowGrapple();
+
+        // freeze function
+        if (freeze)
+        {
+            characterController.Move(Vector3.zero);
+        }
+    }
+
+    void OnEnable()
+    {
+        //enables character control action map
+        playerInput.CharacterControls.Enable();
+    }
+
+    void OnDisable()
+    {
+        //disables character control action map
+        playerInput.CharacterControls.Disable();
+    }
+
     #region PlayerHandling
 
     void handleRotation()
@@ -96,7 +131,7 @@ public class PlayerMovementController : MonoBehaviour
         positionToLookAt = Quaternion.Euler(0.0f, mainCamera.transform.eulerAngles.y, 0.0f) * new Vector3(currentMovementInput.x, 0.0f, currentMovementInput.y);
 
         //player moves in the direction they are looking
-        currentMovement.x = positionToLookAt.x;    //remember to NEVER even TOUCH currentMovement.y, it will completely fuck up the gravity logic
+        currentMovement.x = positionToLookAt.x;    //remember to NEVER even TOUCH currentMovement.y, it will completely mess up the gravity logic
         currentMovement.z = positionToLookAt.z;
 
         Quaternion currentRotation = transform.rotation;
@@ -241,24 +276,43 @@ public class PlayerMovementController : MonoBehaviour
         return Vector3.ProjectOnPlane(currentMovement, slopeHit.normal).normalized;
     }
 
-    private bool enableMovementOnNextTouch;
+    // This controls the movement of the grappling
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
-        activeGrapple = true;
+        activeGrapple = true;;
 
         velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        Debug.Log("Velocity to set " + velocityToSet);
 
-        Invoke(nameof(SetVelocity), 0.1f);
+        // Keep hardcoded number as shown, as to prevent player bounciness
+        //Invoke(nameof(SetVelocity), 1f);
 
         // If you have been grappling more than 3 sec
-        Invoke(nameof(ResetRestrictions), 3f);
+        //Invoke(nameof(ResetRestrictions), 3f);
     }
 
-    private Vector3 velocityToSet;
+
     void SetVelocity()
     {
         enableMovementOnNextTouch = true;
-        rb.velocity = velocityToSet;
+    }
+
+    void AllowGrapple()
+    {
+        // If you have grappled
+        if (activeGrapple)
+        {
+            // Simulate velocity by using cc.move()
+            Debug.Log("Allow grapple velocity " + velocityToSet); 
+            characterController.Move(velocityToSet * Time.deltaTime);
+            // Update variable to reflect the movement, use lerp to make it smoother
+            velocityToSet = Vector3.Lerp(velocityToSet, Vector3.zero, Time.deltaTime * decelerationRate);
+            // Check how close the player has gotten, and if they are close, stop grapple
+            if (velocityToSet.magnitude < 0.1f)
+            {
+                activeGrapple = false;
+            }
+        }
     }
 
     void ResetRestrictions()
@@ -277,53 +331,16 @@ public class PlayerMovementController : MonoBehaviour
         }
     }
 
-    // kinematic calculation for grapple
     public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
     {
         float gravity = Physics.gravity.y;
         float displacementY = endPoint.y - startPoint.y;
-        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+        Vector3 displacementXZ = new (endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
 
         Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
         Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
             + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
 
         return velocityXZ + velocityY;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        handleRotation();
-        handleAnimation();
-        handleMovement();
-        handleGravity();
-        handleJump();
-
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-
-        // handle drag
-        if (grounded && !activeGrapple)
-            rb.drag = groundDrag;
-        else
-            rb.drag = 0;
-
-        // freeze function
-        /*if(freeze)
-        {
-            rb.velocity = Vector3.zero;
-        }*/
-    }
-
-    void OnEnable()
-    {
-        //enables character control action map
-        playerInput.CharacterControls.Enable();
-    }
-
-    void OnDisable() 
-    {
-        //disables character control action map
-        playerInput.CharacterControls.Disable();
     }
 }

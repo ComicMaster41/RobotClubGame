@@ -28,7 +28,7 @@ public class Grappling : MonoBehaviour
     private bool grappling;
 
     // Grab a reference to a rigidbody on the player
-    public Rigidbody rb;
+    Rigidbody rb;
 
     private void Start()
     {
@@ -52,9 +52,6 @@ public class Grappling : MonoBehaviour
 
     private void StartGrapple()
     {
-        // Enable kinematic on rigidbody
-        rb.isKinematic = true;
-
         if (grapplingCdTimer > 0) return;
 
         grappling = true;
@@ -66,7 +63,6 @@ public class Grappling : MonoBehaviour
         if(Physics.Raycast(cam.position, cam.forward, out hit, maxGrapplineDistance, whatIsGrappeable))
         {
             grapplePoint = hit.point;
-
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
@@ -84,7 +80,7 @@ public class Grappling : MonoBehaviour
     {
         pm.freeze = false;
 
-        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+        Vector3 lowestPoint = new (transform.position.x, transform.position.y - 1f, transform.position.z);
 
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
@@ -105,8 +101,5 @@ public class Grappling : MonoBehaviour
         grapplingCdTimer = grapplingCd;
 
         lr.enabled = false;
-
-        // Disable kinematic on rigidbody
-        rb.isKinematic = false;
     }
 }
