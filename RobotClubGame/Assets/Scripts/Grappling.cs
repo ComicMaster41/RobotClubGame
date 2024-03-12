@@ -13,10 +13,11 @@ public class Grappling : MonoBehaviour
 
     [Header("Grappling")]
     public float maxGrapplineDistance;
+
     public float grappleDelayTime;
     public float overshootYAxis;
 
-    private Vector3 grapplePoint;
+    public Vector3 grapplePoint;
 
     [Header("Cooldown")]
     public float grapplingCd;
@@ -52,22 +53,27 @@ public class Grappling : MonoBehaviour
 
     private void StartGrapple()
     {
+        // Check if the grappling cooldown timer is still ticking
         if (grapplingCdTimer > 0) return;
 
         grappling = true;
         
         pm.freeze = true;
 
-        // Raycast creation
         RaycastHit hit;
+        // If the grapple hit a valid point
         if(Physics.Raycast(cam.position, cam.forward, out hit, maxGrapplineDistance, whatIsGrappeable))
         {
+            // Set the grapple point to be that targeted area
             grapplePoint = hit.point;
+            // Call the next grapple function
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
+            // Else, set grapple point to be the cam position + grapple distance
             grapplePoint = cam.position + cam.forward * maxGrapplineDistance;
+            // Prevent grapple
             Invoke(nameof(StopGrapple), grappleDelayTime);
         }
 
@@ -80,15 +86,16 @@ public class Grappling : MonoBehaviour
     {
         pm.freeze = false;
 
-        Vector3 lowestPoint = new (transform.position.x, transform.position.y - 1f, transform.position.z);
-
+        // Calculate the lowest point of grapple position
+        Vector3 lowestPoint = new(transform.position.x, transform.position.y - 1f, transform.position.z);
+        // Calculate highest position
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
+        // Calculate curve of positions
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
-
+        // Check if the highest point is negative, and set the curve to the highest point
         if (grapplePointRelativeYPos < 0) highestPointOnArc = overshootYAxis;
 
         pm.JumpToPosition(grapplePoint, highestPointOnArc);
-
         Invoke(nameof(StopGrapple), 1.0f);
     }
 
@@ -101,5 +108,15 @@ public class Grappling : MonoBehaviour
         grapplingCdTimer = grapplingCd;
 
         lr.enabled = false;
+    }
+
+    public bool IsGrappling()
+    {
+        return grappling;
+    }
+
+    public Vector3 GetGrapplePoint()
+    {
+        return grapplePoint;
     }
 }

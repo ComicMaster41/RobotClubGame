@@ -60,7 +60,7 @@ public class PlayerMovementController : MonoBehaviour
 
     void Awake()
     {
-        //initially set reference variables
+        // Initially set reference variables
         playerInput = new PlayerMovement();
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
@@ -83,7 +83,6 @@ public class PlayerMovementController : MonoBehaviour
         playerInput.CharacterControls.Jump.canceled += onJump;
 
         setupJumpVariables();
-
     }
 
     // Update is called once per frame
@@ -279,16 +278,15 @@ public class PlayerMovementController : MonoBehaviour
     // This controls the movement of the grappling
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
-        activeGrapple = true;;
+        activeGrapple = true;
 
         velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
-        Debug.Log("Velocity to set " + velocityToSet);
 
         // Keep hardcoded number as shown, as to prevent player bounciness
-        //Invoke(nameof(SetVelocity), 1f);
+        Invoke(nameof(SetVelocity), 0.1f);
 
         // If you have been grappling more than 3 sec
-        //Invoke(nameof(ResetRestrictions), 3f);
+        Invoke(nameof(ResetRestrictions), 3f);
     }
 
 
@@ -303,14 +301,18 @@ public class PlayerMovementController : MonoBehaviour
         if (activeGrapple)
         {
             // Simulate velocity by using cc.move()
-            Debug.Log("Allow grapple velocity " + velocityToSet); 
             characterController.Move(velocityToSet * Time.deltaTime);
+
+            // Find the distance to target
+            float distanceToTarget = Vector3.Distance(transform.position, grappling.grapplePoint);
+
             // Update variable to reflect the movement, use lerp to make it smoother
             velocityToSet = Vector3.Lerp(velocityToSet, Vector3.zero, Time.deltaTime * decelerationRate);
             // Check how close the player has gotten, and if they are close, stop grapple
             if (velocityToSet.magnitude < 0.1f)
             {
                 activeGrapple = false;
+                Debug.Log("Velocity is false");
             }
         }
     }
