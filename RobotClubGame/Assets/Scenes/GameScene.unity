@@ -901,7 +901,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 774436627}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 46.72, y: 4.83, z: 42.79}
+  m_LocalPosition: {x: 46.72, y: 24.56, z: 42.79}
   m_LocalScale: {x: 5, y: 10, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1781,7 +1781,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1343802727}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 42.31, y: 4.83, z: 20.509733}
+  m_LocalPosition: {x: 42.31, y: 15.22, z: 20.509733}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2228,11 +2228,6 @@ MonoBehaviour:
   maxJumpHeight: 4
   maxJumpTime: 1
   groundDrag: 0
-  freeze: 0
-  activeGrapple: 0
-  grounded: 0
-  dragFactor: 0.1
-  decelerationRate: -10
 --- !u!143 &1860826772
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2277,17 +2272,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 963194228}
-  gunTip: {fileID: 1074489622}
+  player: {fileID: 0}
+  maxGrapplineDistance: 100
+  trajectoryHeight: 10
   whatIsGrappeable:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
+  gunTip: {fileID: 1074489622}
   lr: {fileID: 2062700359}
-  maxGrapplineDistance: 100
-  grappleDelayTime: 0.25
-  overshootYAxis: 5
-  grapplingCd: 0.1
-  grapplingCdTimer: 0
-  grappleKey: 324
+  grapplePoint: {x: 0, y: 0, z: 0}
+  grapplingCd: 5
+  grappleKey: 9
+  cameraTransform: {fileID: 0}
+  whatIsGrappleable:
+    serializedVersion: 2
+    m_Bits: 0
+  grappleSpeed: 5
 --- !u!1 &1991068297
 GameObject:
   m_ObjectHideFlags: 0

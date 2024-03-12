@@ -9,7 +9,6 @@ public class PlayerMovementController : MonoBehaviour
     //Declare reference variables
     PlayerMovement playerInput;
     CharacterController characterController;
-    Grappling grappling;
     Animator animator;
     Camera mainCamera;
 
@@ -29,7 +28,7 @@ public class PlayerMovementController : MonoBehaviour
     float currentSpeed;
     bool isMovementPressed;
     bool isRunPressed;
-    float direction, playerHeight;
+    float playerHeight;
 
     float rotationFactorPerFrame = 20f;
 
@@ -45,18 +44,7 @@ public class PlayerMovementController : MonoBehaviour
     bool isJumping = false;
     bool isJumpAnimating = false;
     public float groundDrag;
-
-    // Grappling Variables
-    public bool freeze;
-    public bool activeGrapple;
-    public bool grounded;
-    public float dragFactor = 0.1f; // The amount of drag to apply
-    public float decelerationRate;
-
-    private bool enableMovementOnNextTouch;
-    private Vector3 velocityToSet;
-
-
+    bool grounded;
 
     void Awake()
     {
@@ -65,8 +53,6 @@ public class PlayerMovementController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         mainCamera = Camera.main;
-
-        grappling = GetComponent<Grappling>();
 
         isWalkingHash = Animator.StringToHash("isWalking");
         isRunningHash = Animator.StringToHash("isRunning");
@@ -95,15 +81,6 @@ public class PlayerMovementController : MonoBehaviour
         handleJump();
 
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-
-        // A check to allow player to grapple
-        AllowGrapple();
-
-        // freeze function
-        if (freeze)
-        {
-            characterController.Move(Vector3.zero);
-        }
     }
 
     void OnEnable()
@@ -259,90 +236,11 @@ public class PlayerMovementController : MonoBehaviour
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
 
         characterController.Move(new Vector3(currentMovement.x * currentSpeed, currentMovement.y, currentMovement.z * currentSpeed) * Time.deltaTime);
-
-        if (activeGrapple) return;
-
-        // Set player to freeze for grappling hook
-        if (freeze)
-        {
-            characterController.Move(Vector3.zero);
-        }
     }
     #endregion
 
     private Vector3 GetSlopeMoveDirection()
     {
         return Vector3.ProjectOnPlane(currentMovement, slopeHit.normal).normalized;
-    }
-
-    // This controls the movement of the grappling
-    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
-    {
-        activeGrapple = true;
-
-        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
-
-        // Keep hardcoded number as shown, as to prevent player bounciness
-        Invoke(nameof(SetVelocity), 0.1f);
-
-        // If you have been grappling more than 3 sec
-        Invoke(nameof(ResetRestrictions), 3f);
-    }
-
-
-    void SetVelocity()
-    {
-        enableMovementOnNextTouch = true;
-    }
-
-    void AllowGrapple()
-    {
-        // If you have grappled
-        if (activeGrapple)
-        {
-            // Simulate velocity by using cc.move()
-            characterController.Move(velocityToSet * Time.deltaTime);
-
-            // Find the distance to target
-            float distanceToTarget = Vector3.Distance(transform.position, grappling.grapplePoint);
-
-            // Update variable to reflect the movement, use lerp to make it smoother
-            velocityToSet = Vector3.Lerp(velocityToSet, Vector3.zero, Time.deltaTime * decelerationRate);
-            // Check how close the player has gotten, and if they are close, stop grapple
-            if (velocityToSet.magnitude < 0.1f)
-            {
-                activeGrapple = false;
-                Debug.Log("Velocity is false");
-            }
-        }
-    }
-
-    void ResetRestrictions()
-    {
-        activeGrapple = false;
-    }
-
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (enableMovementOnNextTouch)
-        {
-            enableMovementOnNextTouch = false;
-            ResetRestrictions();
-
-            GetComponent<Grappling>().StopGrapple();
-        }
-    }
-
-    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
-    {
-        float gravity = Physics.gravity.y;
-        float displacementY = endPoint.y - startPoint.y;
-        Vector3 displacementXZ = new (endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
-
-        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
-        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
-            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
-
-        return velocityXZ + velocityY;
     }
 }
