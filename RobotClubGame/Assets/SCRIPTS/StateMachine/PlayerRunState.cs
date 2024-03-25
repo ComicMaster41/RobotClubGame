@@ -11,13 +11,12 @@ public class PlayerRunState : PlayerBaseState
     {
         Ctx.Animator.SetBool(Ctx.IsWalkingHash, false);
         Ctx.Animator.SetBool(Ctx.IsRunningHash, true);
+        Ctx.Speed = Ctx.RunSpeed;
     }
 
     public override void UpdateState()
     {
         CheckSwitchStates();
-        Ctx.TargetSpeed = Ctx.Speed * Ctx.RunMultiplier;
-        //Ctx.Acceleration = 
     }
 
     public override void ExitState() { }
