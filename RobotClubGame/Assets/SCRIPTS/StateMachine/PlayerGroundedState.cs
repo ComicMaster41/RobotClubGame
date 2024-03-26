@@ -13,8 +13,6 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void EnterState()
     {
-        Ctx.CurrentMovementY = Ctx.GroundGravity;
-        Ctx.AppliedMovementY = Ctx.GroundGravity;
     }
 
     public override void UpdateState()
@@ -26,7 +24,7 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void CheckSwitchStates()
     {
-        if(Ctx.IsJumpPressed && !Ctx.RequireNewJumpPress)
+        if(Ctx.IsJumpPressed && Ctx.ReadyToJump && Ctx.Grounded)
         {
             SwitchState(Factory.Jump());
         }

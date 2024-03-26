@@ -11,12 +11,12 @@ public class PlayerWalkingState : PlayerBaseState
     {
         Ctx.Animator.SetBool(Ctx.IsWalkingHash, true);
         Ctx.Animator.SetBool(Ctx.IsRunningHash, false);
+        Ctx.Speed = Ctx.WalkSpeed;
     }
 
     public override void UpdateState()
     {
         CheckSwitchStates();
-        Ctx.TargetSpeed = Ctx.Speed;
     }
 
     public override void ExitState() { }

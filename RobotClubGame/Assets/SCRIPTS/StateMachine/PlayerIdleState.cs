@@ -11,14 +11,12 @@ public class PlayerIdleState : PlayerBaseState
     {
         Ctx.Animator.SetBool(Ctx.IsWalkingHash, false);
         Ctx.Animator.SetBool(Ctx.IsRunningHash, false);
-        Ctx.AppliedMovementX = 0;
-        Ctx.AppliedMovementZ = 0;
+        Ctx.Speed = Ctx.WalkSpeed;
     }
 
     public override void UpdateState()
     {
         CheckSwitchStates();
-        Ctx.TargetSpeed = Ctx.Speed;
     }
 
     public override void ExitState() { }

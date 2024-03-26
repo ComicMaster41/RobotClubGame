@@ -14,25 +14,22 @@ public class PlayerJumpState : PlayerBaseState
     public override void EnterState()
     {
         HandleJump();
+        Ctx.ReadyToJump = false;
     }
 
     public override void UpdateState()
     {
         CheckSwitchStates();
-        HandleGravity();
     }
 
     public override void ExitState()
     {
         Ctx.Animator.SetBool(Ctx.IsJumpingHash, false);
-        Ctx.RequireNewJumpPress = false;
-        if (Ctx.IsJumpPressed)
-            Ctx.RequireNewJumpPress = true;
     }
 
     public override void CheckSwitchStates()
     {
-        if (Ctx.CharacterController.isGrounded)
+        if (Ctx.Grounded && Ctx.ReadyToJump)
         {
             SwitchState(Factory.Grounded());
         }
@@ -51,31 +48,13 @@ public class PlayerJumpState : PlayerBaseState
     void HandleJump()
     {
         //handle jumping animation
+        Debug.Log("jumpg");
         Ctx.Animator.SetBool(Ctx.IsJumpingHash, true);
         Ctx.Animator.SetBool(Ctx.IsFallingHash, false);
 
-        Ctx.IsJumping = true;
-        Ctx.CurrentMovementY = Ctx.InitialJumpVelocity;
-        Ctx.AppliedMovementY = Ctx.InitialJumpVelocity;
+        Ctx.RB.velocity = new Vector3(Ctx.RB.velocity.x, 0f, Ctx.RB.velocity.z);
+        Ctx.RB.AddForce(Ctx.RB.transform.up * Ctx.InitialJumpVelocity, ForceMode.Impulse);
     }
 
-    void HandleGravity()
-    {
-        bool isFalling = Ctx.CurrentMovementY <= 0.0f || !Ctx.IsJumpPressed;
-        float fallMultiplier = 2.0f;
 
-        if (isFalling)
-        {
-            Ctx.Animator.SetBool(Ctx.IsFallingHash, true);
-            float previousYVelocity = Ctx.CurrentMovementY;
-            Ctx.CurrentMovementY = Ctx.CurrentMovementY + (Ctx.Gravity * fallMultiplier * Time.deltaTime);
-            Ctx.AppliedMovementY = Mathf.Max((previousYVelocity + Ctx.CurrentMovementY) * .5f, -20.0f);
-        }
-        else
-        {
-            float previousYVelocity = Ctx.CurrentMovementY;
-            Ctx.CurrentMovementY = Ctx.CurrentMovementY + (Ctx.Gravity * Time.deltaTime);
-            Ctx.AppliedMovementY = (previousYVelocity + Ctx.CurrentMovementY) * .5f;
-        }
-    }
 }
