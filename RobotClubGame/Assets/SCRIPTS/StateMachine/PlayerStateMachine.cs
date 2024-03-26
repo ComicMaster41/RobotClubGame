@@ -9,6 +9,7 @@ public class PlayerStateMachine : MonoBehaviour
     public Animator _animator;
     Camera _mainCamera;
     Rigidbody _rb;
+    public Rigidbody RB { get { return _rb; } }
 
     int _isWalkingHash;
     int _isRunningHash;
@@ -28,6 +29,7 @@ public class PlayerStateMachine : MonoBehaviour
     bool _isRunPressed;
     public Transform _orientation;
     float _rotationFactorPerFrame = 20f;
+    public bool freeze; // For grappling hook
 
     [Header("Key Binds")]
     public KeyCode _jumpKey = KeyCode.Space;
@@ -55,6 +57,11 @@ public class PlayerStateMachine : MonoBehaviour
     bool _readyToJump = true;
     bool _isJumping = false;
 
+    // Grappling Variables
+    public bool activeGrapple;
+    private RaycastHit slopeHit;
+    public float maxSlopeAngle;
+
     //State Variables
     PlayerBaseState _currentState;
     PlayerStateFactory _states;
@@ -77,7 +84,6 @@ public class PlayerStateMachine : MonoBehaviour
     public bool ReadyToJump { get { return _readyToJump; } set { _readyToJump = value; } }
     public bool Grounded { get { return _grounded; } }
         //Movement
-    public Rigidbody RB { get { return _rb; } }
     public bool IsMovementPressed { get { return _isMovementPressed; } }
     public bool IsRunPressed { get { return _isRunPressed; } }
     public float CurrentMovementX { get { return _currentMovement.x; } set { _currentMovement.x = value; } }
@@ -108,7 +114,9 @@ public class PlayerStateMachine : MonoBehaviour
         _isFallingHash = Animator.StringToHash("isFalling");
         _isJumpingHash = Animator.StringToHash("isJumping");
 
-
+        // Freeze rotation for grappling
+        _rb.freezeRotation = true;
+        
     }
 
     //Sets speeds of character movement
@@ -132,13 +140,6 @@ public class PlayerStateMachine : MonoBehaviour
     {
         _readyToJump = true;
     }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
 
     void handleMovement()
     {
@@ -176,6 +177,79 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
+    void handleFreeze()
+    {
+        // Mode - Freeze
+        if (freeze)
+        {
+            _rb.velocity = Vector3.zero;
+        }
+    }
+
+    // GRAPPLING HOOK CALCULATIONS
+    private bool enableMovementOnNextTouch;
+    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    {
+        activeGrapple = true;
+
+        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        Invoke(nameof(SetVelocity), 0.1f);
+
+        Invoke(nameof(ResetRestrictions), 3f);
+    }
+
+    private Vector3 velocityToSet;
+    private void SetVelocity()
+    {
+        enableMovementOnNextTouch = true;
+        _rb.velocity = velocityToSet;
+    }
+
+    public void ResetRestrictions()
+    {
+        activeGrapple = false;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (enableMovementOnNextTouch)
+        {
+            enableMovementOnNextTouch = false;
+            ResetRestrictions();
+
+            GetComponent<Grappling>().StopGrapple();
+        }
+    }
+
+    private bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, _playerHeight * 0.5f + 0.3f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
+
+        return false;
+    }
+
+    private Vector3 GetSlopeMoveDirection()
+    {
+        return Vector3.ProjectOnPlane(_currentMovement, slopeHit.normal).normalized;
+    }
+
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endPoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
+            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+        return velocityXZ + velocityY;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -189,6 +263,8 @@ public class PlayerStateMachine : MonoBehaviour
         onInput();
         SpeedControl();
         _currentState.UpdateStates();
+
+        handleFreeze(); // For grappling hook   
     }
 
     private void FixedUpdate()

@@ -5,45 +5,36 @@ using UnityEngine;
 public class Grappling : MonoBehaviour
 {
     [Header("References")]
-    public Transform cam, player;
-    CharacterController characterController;
+    private PlayerStateMachine pm;
+    public Transform cam;
+    public Transform gunTip;
+    public LayerMask whatIsGrappleable;
+    public LineRenderer lr;
 
     [Header("Grappling")]
-    public float maxGrapplineDistance;
-    public float trajectoryHeight = 5f; // Maximum height the arc will reach
-    float minMovementThreshold = 0.1f; // Threshold to determine if the player is moving
-    public LayerMask whatIsGrappeable;
-    public Transform gunTip;
-    public LineRenderer lr;
-    bool grappling;
-    public Vector3 grapplePoint;
-    Vector3 currentVelocity;
+    public float maxGrappleDistance;
+    public float grappleDelayTime;
+    public float overshootYAxis;
+
+    private Vector3 grapplePoint;
 
     [Header("Cooldown")]
     public float grapplingCd;
     private float grapplingCdTimer;
 
     [Header("Input")]
-    public KeyCode grappleKey;
+    public KeyCode grappleKey = KeyCode.Mouse1;
 
-    public Transform cameraTransform; // Assign your main camera or a transform that points in the direction you want to shoot the grappling hook
-    public LayerMask whatIsGrappleable; // Configure this to only include layers you can grapple to
-
-    public float grappleSpeed = 10f; // Speed at which the player moves towards the grapple point
-
+    private bool grappling;
 
     private void Start()
     {
-        player = GetComponent<Transform>();
-        characterController = GetComponent<CharacterController>();
+        pm = GetComponent<PlayerStateMachine>();
     }
 
     private void Update()
     {
-        // Check key and if player is moving to grapple
         if (Input.GetKeyDown(grappleKey)) StartGrapple();
-
-        if (grappling) GrappleMovement();
 
         if (grapplingCdTimer > 0)
             grapplingCdTimer -= Time.deltaTime;
@@ -57,82 +48,64 @@ public class Grappling : MonoBehaviour
 
     private void StartGrapple()
     {
-        //if (grapplingCdTimer > 0) return;
+        if (grapplingCdTimer > 0) return;
 
         grappling = true;
-        
+
+        pm.freeze = true;
+
         RaycastHit hit;
-        // If the grapple hit a valid point
-        if (Physics.Raycast(cam.position, cam.forward, out hit, maxGrapplineDistance, whatIsGrappeable))
+        if (Physics.Raycast(cam.position, cam.forward, out hit, maxGrappleDistance, whatIsGrappleable))
         {
             grapplePoint = hit.point;
-            grappling = true;
-            currentVelocity = CalculateJumpVelocity(transform.position, grapplePoint, trajectoryHeight);
+
+            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
+        }
+        else
+        {
+            grapplePoint = cam.position + cam.forward * maxGrappleDistance;
+
+            Invoke(nameof(StopGrapple), grappleDelayTime);
         }
 
-        // Raycast line renderer
         lr.enabled = true;
         lr.SetPosition(1, grapplePoint);
     }
 
-    void GrappleMovement()
+    private void ExecuteGrapple()
     {
-        if (!grappling) return;
+        pm.freeze = false;
 
-        float deltaTime = Time.deltaTime;
-        characterController.Move(currentVelocity * deltaTime);
-        // Apply gravity (increase vertical velocity)
-        currentVelocity += Physics.gravity * deltaTime;
-        // Stop grappling if close enough to the target or if moving downwards after reaching the peak
-        if (Vector3.Distance(transform.position, grapplePoint) < 1f || currentVelocity.y < 0 && transform.position.y > grapplePoint.y)
-        {
-            grappling = false;
-        }
+        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+
+        float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
+        float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
+
+        if (grapplePointRelativeYPos < 0) highestPointOnArc = overshootYAxis;
+
+        pm.JumpToPosition(grapplePoint, highestPointOnArc);
 
         Invoke(nameof(StopGrapple), 1f);
     }
 
-    // Regular calculation
-    //public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
-    //{
-    //    float gravity = Physics.gravity.y;
-    //    float displacementY = endPoint.y - startPoint.y;
-    //    Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
-
-    //    Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
-    //    Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
-    //        + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
-
-    //    return velocityXZ + velocityY;
-    //}
-
-    // Chat GPT caluclation
-    Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float speed)
-    {
-        Vector3 toTarget = endPoint - startPoint;
-        Vector3 toTargetXZ = new Vector3(toTarget.x, 0, toTarget.z);
-        float distanceXZ = toTargetXZ.magnitude;
-        float time = distanceXZ / speed;
-
-        // Simplify by using a direct approach for the vertical component
-        float velocityY = (1 / time) * (toTarget.y + (0.5f * Mathf.Abs(Physics.gravity.y) * time * time));
-
-        // Use the horizontal distance and time to calculate horizontal speed
-        Vector3 velocityXZ = toTargetXZ.normalized * speed;
-
-        return new Vector3(velocityXZ.x, velocityY, velocityXZ.z);
-    }
-
-
-
-
-
     public void StopGrapple()
     {
+        pm.freeze = false;
+
         grappling = false;
 
-        lr.enabled = false;
+        grapplingCdTimer = grapplingCd;
 
-        //grapplingCdTimer = grapplingCd;
+        //lr.enabled = false;
+    }
+
+    public bool IsGrappling()
+    {
+        return grappling;
+    }
+
+    public Vector3 GetGrapplePoint()
+    {
+        return grapplePoint;
     }
 }
