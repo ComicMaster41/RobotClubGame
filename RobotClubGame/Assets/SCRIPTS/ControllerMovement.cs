@@ -18,17 +18,16 @@ public class PlayerMovementController : MonoBehaviour
     int isJumpingHash;
 
     //Variables to store player input values
-    Vector2 currentMovementInput;
+    public Vector2 currentMovementInput;
     Vector3 currentMovement;
-    RaycastHit slopeHit;
-    LayerMask whatIsGround;
+    Vector3 appliedMovement;
+    [Header("Movement")]
     [SerializeField]float speed;
     [SerializeField]float acceleration;
     [SerializeField] float runMultiplier = 3.0f;
     float currentSpeed;
     bool isMovementPressed;
     bool isRunPressed;
-    float playerHeight;
 
     float rotationFactorPerFrame = 20f;
 
@@ -39,16 +38,15 @@ public class PlayerMovementController : MonoBehaviour
     //Jumping Variables
     bool isJumpPressed = false;
     float initialJumpVelocity;
+    [Header("Jumping")]
     [SerializeField] float maxJumpHeight = 1.0f;
     [SerializeField] float maxJumpTime = 0.5f;
     bool isJumping = false;
     bool isJumpAnimating = false;
-    public float groundDrag;
-    bool grounded;
 
     void Awake()
     {
-        // Initially set reference variables
+        //initially set reference variables
         playerInput = new PlayerMovement();
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
@@ -69,54 +67,7 @@ public class PlayerMovementController : MonoBehaviour
         playerInput.CharacterControls.Jump.canceled += onJump;
 
         setupJumpVariables();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        handleRotation();
-        handleAnimation();
-        handleMovement();
-        handleGravity();
-        handleJump();
-
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-    }
-
-    void OnEnable()
-    {
-        //enables character control action map
-        playerInput.CharacterControls.Enable();
-    }
-
-    void OnDisable()
-    {
-        //disables character control action map
-        playerInput.CharacterControls.Disable();
-    }
-
-    #region PlayerHandling
-
-    void handleRotation()
-    {
-        if (currentMovementInput.sqrMagnitude == 0) return;
-
-        Vector3 positionToLookAt = currentMovement;
-
-        //set direction for player to look at. Looks in direction of camera
-        positionToLookAt = Quaternion.Euler(0.0f, mainCamera.transform.eulerAngles.y, 0.0f) * new Vector3(currentMovementInput.x, 0.0f, currentMovementInput.y);
-
-        //player moves in the direction they are looking
-        currentMovement.x = positionToLookAt.x;    //remember to NEVER even TOUCH currentMovement.y, it will completely mess up the gravity logic
-        currentMovement.z = positionToLookAt.z;
-
-        Quaternion currentRotation = transform.rotation;
-        //rotates player to face correct orientation
-        if(isMovementPressed)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(positionToLookAt, Vector3.up);
-            transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, rotationFactorPerFrame * Time.deltaTime);
-        }
     }
 
     //Sets up variables that will be used for jumping
@@ -133,25 +84,6 @@ public class PlayerMovementController : MonoBehaviour
         isJumpPressed = context.ReadValueAsButton();
     }
 
-    //Makes the character jump
-    void handleJump()
-    {
-        if(!isJumping && characterController.isGrounded && isJumpPressed)
-        {
-            //handle jumping animation
-            animator.SetBool(isJumpingHash, true);
-            animator.SetBool(isFallingHash, false);
-            isJumpAnimating = true;
-
-            isJumping = true;
-            currentMovement.y = initialJumpVelocity * .5f;
-        }
-        else if(!isJumpPressed && isJumping && characterController.isGrounded) 
-        { 
-            isJumping = false; 
-        }
-    }
-
     //Checks if run button is pressed
     void onRun(InputAction.CallbackContext context)
     {
@@ -159,11 +91,33 @@ public class PlayerMovementController : MonoBehaviour
     }
 
     //Sets speeds of character movement
-    void onMovementInput (InputAction.CallbackContext context)
+    void onMovementInput(InputAction.CallbackContext context)
     {
         currentMovementInput = context.ReadValue<Vector2>();
-        currentMovement = new Vector3(currentMovementInput.x, 0.0f, currentMovementInput.y);
+        currentMovement = new Vector3(currentMovementInput.x, currentMovement.y, currentMovementInput.y);
         isMovementPressed = currentMovementInput.x != 0 || currentMovementInput.y != 0;
+    }
+
+    void handleRotation()
+    {
+        if (currentMovementInput.sqrMagnitude == 0) return;
+
+        Vector3 positionToLookAt = currentMovement;
+
+        //set direction for player to look at. Looks in direction of camera
+        positionToLookAt = Quaternion.Euler(0.0f, mainCamera.transform.eulerAngles.y, 0.0f) * new Vector3(currentMovementInput.x, 0.0f, currentMovementInput.y);
+
+        //player moves in the direction they are looking
+        currentMovement.x = positionToLookAt.x;    //remember to NEVER even TOUCH currentMovement.y, it will completely fuck up the gravity logic
+        currentMovement.z = positionToLookAt.z;
+
+        Quaternion currentRotation = transform.rotation;
+        //rotates player to face correct orientation
+        if(isMovementPressed)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(positionToLookAt, Vector3.up);
+            transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, rotationFactorPerFrame * Time.deltaTime);
+        }
     }
 
     //Handles the gravity and the falling
@@ -173,7 +127,7 @@ public class PlayerMovementController : MonoBehaviour
         float fallMultiplier = 2.0f;
 
         //REMINDER TO NOT TOUCH currentMovement.y IF YOU ARE NOT RAF THEN YOU'RE GOOD
-        if(characterController.isGrounded)
+        if (characterController.isGrounded)
         {
             //I can't remember what I did here, but it was probably in preparation for a falling animation
             if (isJumpAnimating)
@@ -185,21 +139,40 @@ public class PlayerMovementController : MonoBehaviour
 
             //gravity when grounded
             currentMovement.y = groundGravity;
+            appliedMovement.y = groundGravity;
         }
-        else if(isFalling)
+        else if (isFalling)
         {
             animator.SetBool(isFallingHash, true);
             float previousYVelocity = currentMovement.y;
-            float newYVelocity = currentMovement.y + (gravity * fallMultiplier * Time.deltaTime);
-            float nextYVelocity =Mathf.Max((previousYVelocity + newYVelocity) * .5f, -20.0f);
-            currentMovement.y = nextYVelocity;
+            currentMovement.y = currentMovement.y + (gravity * fallMultiplier * Time.deltaTime);
+            appliedMovement.y = Mathf.Max((previousYVelocity + currentMovement.y) * .5f, -20.0f);
         }
         else
         {
             float previousYVelocity = currentMovement.y;
-            float newYVelocity = currentMovement.y + (gravity * Time.deltaTime);
-            float nextYVelocity = (previousYVelocity + newYVelocity) * .5f;
-            currentMovement.y = nextYVelocity;
+            currentMovement.y = currentMovement.y + (gravity * Time.deltaTime);
+            appliedMovement.y = (previousYVelocity + currentMovement.y) * .5f;
+        }
+    }
+
+    //Makes the character jump
+    void handleJump()
+    {
+        if (!isJumping && characterController.isGrounded && isJumpPressed)
+        {
+            //handle jumping animation
+            animator.SetBool(isJumpingHash, true);
+            animator.SetBool(isFallingHash, false);
+            isJumpAnimating = true;
+
+            isJumping = true;
+            currentMovement.y = initialJumpVelocity;
+            appliedMovement.y = initialJumpVelocity;
+        }
+        else if (!isJumpPressed && isJumping && characterController.isGrounded)
+        {
+            isJumping = false;
         }
     }
 
@@ -211,11 +184,11 @@ public class PlayerMovementController : MonoBehaviour
         bool isFalling = animator.GetBool(isFallingHash);
         bool isJumping = animator.GetBool(isJumpingHash);
 
-        if((isMovementPressed && !isWalking) && !isRunPressed)
+        if ((isMovementPressed && !isWalking) && !isRunPressed)
         {
             animator.SetBool(isWalkingHash, true);
         }
-        else if(!isMovementPressed && isWalking)
+        else if (!isMovementPressed && isWalking)
         {
             animator.SetBool(isWalkingHash, false);
         }
@@ -224,7 +197,7 @@ public class PlayerMovementController : MonoBehaviour
         {
             animator.SetBool(isRunningHash, true);
         }
-        else if((!isMovementPressed || !isRunPressed) && isRunning)
+        else if ((!isMovementPressed || !isRunPressed) && isRunning)
         {
             animator.SetBool(isRunningHash, false);
         }
@@ -235,12 +208,29 @@ public class PlayerMovementController : MonoBehaviour
         var targetSpeed = isRunPressed ? speed * runMultiplier : speed;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
 
-        characterController.Move(new Vector3(currentMovement.x * currentSpeed, currentMovement.y, currentMovement.z * currentSpeed) * Time.deltaTime);
+        characterController.Move(new Vector3(currentMovement.x * currentSpeed, appliedMovement.y, currentMovement.z * currentSpeed) * Time.deltaTime);
     }
-    #endregion
 
-    private Vector3 GetSlopeMoveDirection()
+    // Update is called once per frame
+    void Update()
     {
-        return Vector3.ProjectOnPlane(currentMovement, slopeHit.normal).normalized;
+        handleRotation();
+        handleAnimation();
+        handleMovement();
+        handleGravity();
+        handleJump();
+
+    }
+
+    void OnEnable()
+    {
+        //enables character control action map
+        playerInput.CharacterControls.Enable();
+    }
+
+    void OnDisable() 
+    {
+        //disables character control action map
+        playerInput.CharacterControls.Disable();
     }
 }
