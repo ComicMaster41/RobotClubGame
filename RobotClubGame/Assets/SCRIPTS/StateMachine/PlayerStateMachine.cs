@@ -32,14 +32,29 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("Key Binds")]
     public KeyCode _jumpKey = KeyCode.Space;
     public KeyCode _runKey = KeyCode.LeftShift;
+    float _verticalInput;
+    float _horizontalInput;
+
+    [Header("WallRunning")]
+    public LayerMask _whatIsWall;
+    public float _wallRunForce;
+    public float _wallRunSpeed;
+    public float _maxWallRunTime;
+    private float _wallRunTimer;
+    private bool _isWallRunning;
+
+    [Header("Wall Detection")]
+    public float _wallCheckDistance;
+    private RaycastHit _leftWallHit;
+    private RaycastHit _rightWallHit;
+    private bool _wallLeft;
+    private bool _wallRight;
 
     [Header("Ground Check")]
     public float _playerHeight;
     public LayerMask _whatIsGround;
     bool _grounded;
 
-    float _verticalInput;
-    float _horizontalInput;
 
 
     //Gravity Variables
@@ -70,7 +85,7 @@ public class PlayerStateMachine : MonoBehaviour
     public int IsRunningHash { get { return _isRunningHash; } }
         //Jumping
     public bool IsJumpPressed { get { return _isJumpPressed; } }
-    public bool IsJumping { set { _isJumping = value; } }
+    public bool IsJumping { get { return _isJumping; } set { _isJumping = value; } }
     public float CurrentMovementY { get { return _currentMovement.y; } set { _currentMovement.y = value; } }
     public float InitialJumpVelocity { get { return _initialJumpVelocity; } }
     public float AirMultiplier { get { return _airMultiplier; } }
@@ -78,6 +93,7 @@ public class PlayerStateMachine : MonoBehaviour
     public bool Grounded { get { return _grounded; } }
         //Movement
     public Rigidbody RB { get { return _rb; } }
+    public Transform Orientation { get { return _orientation; } }
     public bool IsMovementPressed { get { return _isMovementPressed; } }
     public bool IsRunPressed { get { return _isRunPressed; } }
     public float CurrentMovementX { get { return _currentMovement.x; } set { _currentMovement.x = value; } }
@@ -86,9 +102,20 @@ public class PlayerStateMachine : MonoBehaviour
     public float Speed { get { return _speed; } set { _speed = value; } }
     public float WalkSpeed { get { return _walkSpeed; } }
     public float RunSpeed { get { return _runSpeed; } }
+    public float VerticalInput { get { return _verticalInput; } }
+    public float HorizontalInput { get { return _horizontalInput; } }
         //Gravity
     public float GroundGravity { get { return _groundGravity; } }
     public float Gravity { get { return _gravity; } set { _gravity = value; } }
+        //Wallrunning
+    public bool WallRight { get { return _wallRight; } }
+    public bool WallLeft { get { return _wallLeft; } }
+    public bool IsWallRunning { get { return _isWallRunning; } set { _isWallRunning = value; } }
+    public float WallRunForce { get { return _wallRunForce; } }
+    public float WallRunTimer { get { return _wallRunTimer; } }
+    public float WallRunSpeed { get { return _wallRunSpeed; } }
+    public RaycastHit RightWallHit { get { return _rightWallHit; } }
+    public RaycastHit LeftWallHit { get { return _leftWallHit; } }
 
 
     void Awake()
@@ -176,6 +203,19 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
+    private void WallCheck()
+    {
+        _wallRight = Physics.Raycast(transform.position, _orientation.right, out _rightWallHit, _wallCheckDistance, _whatIsWall);
+        _wallLeft = Physics.Raycast(transform.position, -_orientation.right, out _leftWallHit, _wallCheckDistance, _whatIsWall);
+
+        if ((_wallLeft || _wallRight) && _verticalInput > 0)
+        {
+            _isWallRunning = true;
+        }
+        else
+            _isWallRunning = false;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -183,9 +223,12 @@ public class PlayerStateMachine : MonoBehaviour
         _grounded = Physics.Raycast(transform.position, Vector3.down, _playerHeight * 0.5f + 0.2f, _whatIsGround);
         //drag
         if (_grounded)
+        {
             _rb.drag = _groundDrag;
+        }
         else
             _rb.drag = 0;
+        WallCheck();
         onInput();
         SpeedControl();
         _currentState.UpdateStates();

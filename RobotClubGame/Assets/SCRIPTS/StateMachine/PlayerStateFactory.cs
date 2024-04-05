@@ -28,4 +28,12 @@ public class PlayerStateFactory
     {
         return new PlayerGroundedState(_context, this);
     }
+    public PlayerBaseState Wallrunning()
+    {
+        return new PlayerWallrunState(_context, this);
+    }
+    public PlayerBaseState Falling()
+    {
+        return new PlayerFallingState(_context, this);
+    }
 }
