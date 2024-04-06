@@ -2384,13 +2384,13 @@ MonoBehaviour:
   gunTip: {fileID: 1998504297}
   whatIsGrappleable:
     serializedVersion: 2
-    m_Bits: 247
+    m_Bits: 4294967295
   lr: {fileID: 768927845}
   maxGrappleDistance: 100
   grappleDelayTime: 0.25
-  overshootYAxis: 2
+  overshootYAxis: 5
   grapplingCd: 0
-  grappleKey: 46
+  grappleKey: 324
 --- !u!136 &1860826779
 CapsuleCollider:
   m_ObjectHideFlags: 0
