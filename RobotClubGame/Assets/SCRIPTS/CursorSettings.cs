@@ -13,16 +13,7 @@ public class CursorSettings : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Time.timeScale == 1)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
