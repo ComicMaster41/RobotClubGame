@@ -11,6 +11,7 @@ public class PlayerMovementController : MonoBehaviour
     CharacterController characterController;
     Animator animator;
     Camera mainCamera;
+    private Transform mainCamTransform;
 
     int isWalkingHash;
     int isRunningHash;
@@ -42,6 +43,13 @@ public class PlayerMovementController : MonoBehaviour
     bool isJumping = false;
     bool isJumpAnimating = false;
 
+    // shooting
+    private InputAction shootAction;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Transform barrelTransform;
+    [SerializeField] private Transform bulletParent;
+    [SerializeField] private float bulletFlyDistance = 50f;
+
     void Awake()
     {
         //initially set reference variables
@@ -66,6 +74,8 @@ public class PlayerMovementController : MonoBehaviour
 
         setupJumpVariables();
 
+        // shooting InputAction
+        //shootAction = playerInput.actions["Shoot"];
     }
 
     void handleRotation()
@@ -224,11 +234,33 @@ public class PlayerMovementController : MonoBehaviour
     {
         //enables character control action map
         playerInput.CharacterControls.Enable();
+
+        // shooting
+        shootAction.performed += _ => ShootGun();
     }
 
     void OnDisable() 
     {
         //disables character control action map
         playerInput.CharacterControls.Disable();
+
+        // shooting
+        shootAction.performed -= _ => ShootGun();
+    }
+
+    private void ShootGun()
+    {
+        RaycastHit hit;
+        GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, Quaternion.identity, bulletParent);
+        BulletController bulletController = bullet.GetComponent<BulletController>(); // should use if(bullet interface), currently assuming each bullet has bullet controller
+        if(Physics.Raycast(mainCamTransform.position, mainCamTransform.forward, out hit, Mathf.Infinity/*, what to hit. hit tag*/))
+        {
+            bulletController.target = hit.point;
+            bulletController.hit = true;
+        }
+        else{
+            bulletController.target = mainCamTransform.position + mainCamTransform.forward * bulletFlyDistance;
+            bulletController.hit = false;
+        }
     }
 }

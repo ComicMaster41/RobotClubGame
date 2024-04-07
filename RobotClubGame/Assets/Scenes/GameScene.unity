@@ -1375,12 +1375,43 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1195212046}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: -5.614, z: 0.319}
+  m_LocalPosition: {x: -0, y: -5.473, z: 0.347}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 829170092}
   m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1228199121
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1228199122}
+  m_Layer: 0
+  m_Name: BulletParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1228199122
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1228199121}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.867369, y: 1.2245418, z: 4.7821546}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1343802727
 GameObject:
@@ -1612,7 +1643,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1326674022302488646, guid: 0b021d347c25a0748a635ce489f8bfd2, type: 3}
       propertyPath: m_IgnoreTag
-      value: 
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 1326674022302488646, guid: 0b021d347c25a0748a635ce489f8bfd2, type: 3}
       propertyPath: m_CollideAgainst.m_Bits
@@ -1660,7 +1691,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8687316376946988585, guid: 0b021d347c25a0748a635ce489f8bfd2, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8687316376946988585, guid: 0b021d347c25a0748a635ce489f8bfd2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1808,6 +1839,10 @@ MonoBehaviour:
   runMultiplier: 4
   maxJumpHeight: 4
   maxJumpTime: 1
+  bulletPrefab: {fileID: 317995608259478210, guid: 06feea20a40e8aa448e9bd6e223f5c6f, type: 3}
+  barrelTransform: {fileID: 1195212047}
+  bulletParent: {fileID: 1228199122}
+  bulletFlyDistance: 50
 --- !u!143 &1860826772
 CharacterController:
   m_ObjectHideFlags: 0
