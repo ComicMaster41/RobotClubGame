@@ -1518,7 +1518,7 @@ Transform:
   - {fileID: 5388294626106070328}
   - {fileID: 5686672864211375638}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &95259621755087314
 Animator:
@@ -1607,20 +1607,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1765116360898588}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a07e2380b7a16045802483e693c4b59, type: 3}
+  m_Script: {fileID: 11500000, guid: 990b3448482af4bc78dd8c8d5a6684fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  gunTip: {fileID: 8245046966460147180}
+  gunTip: {fileID: 0}
   whatIsGrappleable:
     serializedVersion: 2
-    m_Bits: 247
-  lr: {fileID: 8415143391132451834}
-  maxGrappleDistance: 100
-  grappleDelayTime: 0.25
-  overshootYAxis: 2
+    m_Bits: 0
+  lr: {fileID: 0}
+  maxGrappleDistance: 0
+  grappleDelayTime: 0
+  overshootYAxis: 0
   grapplingCd: 0
-  grappleKey: 46
+  grappleKey: 324
 --- !u!136 &8424206815181897752
 CapsuleCollider:
   m_ObjectHideFlags: 0
