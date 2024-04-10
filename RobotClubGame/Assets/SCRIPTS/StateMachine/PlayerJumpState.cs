@@ -15,6 +15,7 @@ public class PlayerJumpState : PlayerBaseState
     {
         HandleJump();
         Ctx.ReadyToJump = false;
+        Ctx.IsJumping = true;
     }
 
     public override void UpdateState()
@@ -25,14 +26,15 @@ public class PlayerJumpState : PlayerBaseState
     public override void ExitState()
     {
         Ctx.Animator.SetBool(Ctx.IsJumpingHash, false);
+        Ctx.IsJumping = false;
     }
 
     public override void CheckSwitchStates()
     {
         if (Ctx.Grounded && Ctx.ReadyToJump)
-        {
             SwitchState(Factory.Grounded());
-        }
+        else if (Ctx.IsWallRunning)
+            SwitchState(Factory.Wallrunning());
     }
 
     public override void InitializeSubState()

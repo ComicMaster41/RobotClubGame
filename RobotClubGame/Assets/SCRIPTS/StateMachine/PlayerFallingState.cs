@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerGroundedState : PlayerBaseState
+public class PlayerFallingState : PlayerBaseState
 {
-    public PlayerGroundedState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
-    : base (currentContext, playerStateFactory)
+    public PlayerFallingState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
+    : base(currentContext, playerStateFactory)
     {
         IsRootState = true;
         InitializeSubState();
@@ -13,7 +13,7 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("I'm grounded");
+        Debug.Log("I'm falling!!");
     }
 
     public override void UpdateState()
@@ -21,16 +21,16 @@ public class PlayerGroundedState : PlayerBaseState
         CheckSwitchStates();
     }
 
-    public override void ExitState() { }
+    public override void ExitState() {}
 
     public override void CheckSwitchStates()
     {
-        if (Ctx.IsJumpPressed && Ctx.ReadyToJump && Ctx.Grounded)
-            SwitchState(Factory.Jump());
-        else if (!Ctx.IsJumping && !Ctx.Grounded)
+        if (Ctx.Grounded)
         {
-            SwitchState(Factory.Falling());
+            SwitchState(Factory.Grounded());
         }
+        else if(Ctx.IsWallRunning)
+            SwitchState(Factory.Wallrunning());
     }
 
     public override void InitializeSubState()
