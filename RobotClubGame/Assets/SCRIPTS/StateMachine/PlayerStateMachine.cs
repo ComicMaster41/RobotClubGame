@@ -100,7 +100,6 @@ public class PlayerStateMachine : MonoBehaviour
     public bool Grounded { get { return _grounded; } }
         //Movement
 
-    public Rigidbody RB { get { return _rb; } }
     public Transform Orientation { get { return _orientation; } }
     public bool IsMovementPressed { get { return _isMovementPressed; } }
     public bool IsRunPressed { get { return _isRunPressed; } }

@@ -1491,9 +1491,6 @@ GameObject:
   - component: {fileID: 4664284031080769895}
   - component: {fileID: 566744275278080231}
   - component: {fileID: 8424206815181897752}
-  - component: {fileID: 5845670103345752833}
-  - component: {fileID: 1705070898150823033}
-  - component: {fileID: 2304769593877728289}
   - component: {fileID: 6827618001775625432}
   m_Layer: 0
   m_Name: Robot1
@@ -1523,7 +1520,7 @@ Transform:
   - {fileID: 8782575573389603539}
   - {fileID: 7521338543082840123}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &95259621755087314
 Animator:
@@ -1567,6 +1564,13 @@ MonoBehaviour:
   freeze: 0
   _jumpKey: 32
   _runKey: 304
+  _whatIsWall:
+    serializedVersion: 2
+    m_Bits: 0
+  _wallRunForce: 0
+  _wallRunSpeed: 0
+  _maxWallRunTime: 0
+  _wallCheckDistance: 0
   _playerHeight: 0.5
   _whatIsGround:
     serializedVersion: 2
@@ -1622,73 +1626,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &5845670103345752833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1765116360898588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39139af4a3b2b694b84f4e552313bdf6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentMovementInput: {x: 0, y: 0}
-  speed: 5
-  acceleration: 2
-  runMultiplier: 4
-  maxJumpHeight: 4
-  maxJumpTime: 1
---- !u!143 &1705070898150823033
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1765116360898588}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 4
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.02
-  m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &2304769593877728289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1765116360898588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a07e2380b7a16045802483e693c4b59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cam: {fileID: 0}
-  gunTip: {fileID: 8311489110383202274}
-  whatIsGrappleable:
-    serializedVersion: 2
-    m_Bits: 0
-  lr: {fileID: 4945823989133876362}
-  maxGrappleDistance: 0
-  grappleDelayTime: 0.25
-  overshootYAxis: 5
-  grapplingCd: 0.1
-  grappleKey: 324
 --- !u!54 &6827618001775625432
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1712,7 +1649,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
