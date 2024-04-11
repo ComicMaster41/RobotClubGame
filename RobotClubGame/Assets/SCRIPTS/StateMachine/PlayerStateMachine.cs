@@ -43,7 +43,7 @@ public class PlayerStateMachine : MonoBehaviour
     public float _wallRunSpeed;
     public float _maxWallRunTime;
     private float _wallRunTimer;
-    private bool _isWallRunning;
+    private bool _isWallRunning = false; // Set this to false, player doesn't start wallrunning
 
     [Header("Wall Detection")]
     public float _wallCheckDistance;
@@ -207,16 +207,23 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void WallCheck()
     {
+        // Shoot a raycast at either the left or right of the player, checking for the wall
         _wallRight = Physics.Raycast(transform.position, _orientation.right, out _rightWallHit, _wallCheckDistance, _whatIsWall);
         _wallLeft = Physics.Raycast(transform.position, -_orientation.right, out _leftWallHit, _wallCheckDistance, _whatIsWall);
 
+        // if the raycast is valid and they are in the "air"
         if ((_wallLeft || _wallRight) && _verticalInput > 0)
         {
+            // Wall running is true
             _isWallRunning = true;
         }
-        else
+        // If the player is no longer moving, or is on the ground, stop the wall running
+        else if (_verticalInput == 0 || _grounded)
+        {
             _isWallRunning = false;
+        }
     }
+
     void handleFreeze()
     {
         // Mode - Freeze

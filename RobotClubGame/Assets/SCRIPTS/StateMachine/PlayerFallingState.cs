@@ -13,7 +13,7 @@ public class PlayerFallingState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("I'm falling!!");
+        //Debug.Log("I'm falling!!");
     }
 
     public override void UpdateState()

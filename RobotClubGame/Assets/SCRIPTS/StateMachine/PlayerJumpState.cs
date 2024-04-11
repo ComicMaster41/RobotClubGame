@@ -50,7 +50,7 @@ public class PlayerJumpState : PlayerBaseState
     void HandleJump()
     {
         //handle jumping animation
-        Debug.Log("jumpg");
+        //Debug.Log("jumpg");
         Ctx.Animator.SetBool(Ctx.IsJumpingHash, true);
         Ctx.Animator.SetBool(Ctx.IsFallingHash, false);
 

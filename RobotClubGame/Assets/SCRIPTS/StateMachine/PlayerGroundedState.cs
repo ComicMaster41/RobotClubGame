@@ -13,7 +13,7 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("I'm grounded");
+        //Debug.Log("I'm grounded");
     }
 
     public override void UpdateState()
