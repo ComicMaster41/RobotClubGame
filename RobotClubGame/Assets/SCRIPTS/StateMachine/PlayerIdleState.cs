@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Derives from player baste state
+// All function calls in PlayerBaseState
 public class PlayerIdleState : PlayerBaseState
 {
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
@@ -21,6 +23,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void ExitState() { }
 
+    // This function checks player state, and checks if player is moving and running
     public override void CheckSwitchStates()
     {
         if (Ctx.IsMovementPressed && Ctx.IsRunPressed)
