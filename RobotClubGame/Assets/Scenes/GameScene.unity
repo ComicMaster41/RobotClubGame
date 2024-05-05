@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -563,6 +563,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 746946135996662840, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 746946135996662840, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 746946135996662840, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 746946135996662840, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 746946135996662840, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 392
+      objectReference: {fileID: 0}
+    - target: {fileID: 746946135996662840, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -164
+      objectReference: {fileID: 0}
+    - target: {fileID: 1119479287789064261, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8641306281245696270, guid: 551007a3db5ca4f26b81072a3953426f, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1086,7 +1114,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.9027424, y: 1.8115923, z: -6.04}
+  m_LocalPosition: {x: 5.5587664, y: 1.8115923, z: -6.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1574,7 +1602,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8687316376946988585, guid: 0b021d347c25a0748a635ce489f8bfd2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.9027424
+      value: 5.5587664
       objectReference: {fileID: 0}
     - target: {fileID: 8687316376946988585, guid: 0b021d347c25a0748a635ce489f8bfd2, type: 3}
       propertyPath: m_LocalPosition.y
