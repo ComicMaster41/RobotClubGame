@@ -56,6 +56,7 @@ public class PlayerMovementController : MonoBehaviour
     {
         //initially set reference variables
         playerInput = new PlayerMovement();
+
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         mainCamera = Camera.main;
@@ -78,6 +79,8 @@ public class PlayerMovementController : MonoBehaviour
 
         // shooting InputAction
         //shootAction = playerInput.actions["Shoot"];
+
+        Debug.Log("This script is attached to " + gameObject.name);
     }
 
     //Sets up variables that will be used for jumping
