@@ -16,6 +16,6 @@ public class RestartLevel : MonoBehaviour
     {
         Time.timeScale = 1;
         gameOverScript.health = 3;
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

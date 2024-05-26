@@ -6,7 +6,7 @@ public class GameOverScript : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    public GameObject gameOver, heart1, heart2, heart3;
+    public GameObject gameOver, heart1, heart2, heart3, crosshair, reticle;
     public int health;
 
     void Start()
@@ -16,6 +16,8 @@ public class GameOverScript : MonoBehaviour
         heart1.gameObject.SetActive(true);
         heart2.gameObject.SetActive(true);
         heart3.gameObject.SetActive(true);
+        crosshair.gameObject.SetActive(true);
+        reticle.gameObject.SetActive(true);
         gameOver.gameObject.SetActive(false);
 
 
@@ -53,6 +55,8 @@ public class GameOverScript : MonoBehaviour
                     heart1.gameObject.SetActive(false);
                     heart2.gameObject.SetActive(false);
                     heart3.gameObject.SetActive(false);
+                    crosshair.gameObject.SetActive(false);
+                    reticle.gameObject.SetActive(false);
                     gameOver.gameObject.SetActive(true);
                     Time.timeScale = 0;
                     break;
